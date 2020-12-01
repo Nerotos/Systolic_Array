@@ -25,7 +25,7 @@ entity shift_multiplier is
 
         x           : in std_logic_vector(DATA_WIDTH-1 downto 0);
         y           : in std_logic_vector(DATA_WIDTH-1 downto 0);
-        ready       : in std_logic;
+        enable       : in std_logic;
 
         z           : out std_logic_vector(2*DATA_WIDTH-1 downto 0);
         valid       : out std_logic
@@ -94,7 +94,7 @@ architecture behav of shift_multiplier is
 
 begin
 
-    pipeline : process(x,y,ready,stage_2_reg, stage_3_reg)
+    pipeline : process(x,y,enable,stage_2_reg, stage_3_reg)
         variable stage_1_var : generic_stage_reg_type;
         variable stage_2_var : generic_stage_reg_type;
         variable stage_3_var : generic_stage_reg_type;
@@ -102,11 +102,11 @@ begin
 
         -- STAGE 1
         -- Read input
-        if ready = '1' then
+        if enable = '1' then
             stage_1_var.data_x := x;
             stage_1_var.data_y := y;
             stage_1_var.data_z := (others => '0');
-            stage_1_var.data_rdy := ready;
+            stage_1_var.data_rdy := enable;
         end if;
         
         -- shift-multiply algorithm
