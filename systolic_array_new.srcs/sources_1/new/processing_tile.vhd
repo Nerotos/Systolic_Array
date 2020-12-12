@@ -20,7 +20,6 @@
 ----------------------------------------------------------------------------------
 
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -44,10 +43,10 @@ entity processing_tile is
     clk     : in std_logic;
     rst     : in std_logic;
     
-    north   : in processing_tile_signal_type(data(DATA_WIDTH-1 downto 0));
-    west    : in processing_tile_signal_type(data(DATA_WIDTH-1 downto 0));
-    east    : out processing_tile_signal_type(data(DATA_WIDTH-1 downto 0));
-    south   : out processing_tile_signal_type(data(DATA_WIDTH-1 downto 0));
+    north   : in processing_tile_signal_type(  data(DATA_WIDTH-1 downto 0) );
+    west    : in processing_tile_signal_type(  data(DATA_WIDTH-1 downto 0) );
+    east    : out processing_tile_signal_type( data(DATA_WIDTH-1 downto 0) );
+    south   : out processing_tile_signal_type( data(DATA_WIDTH-1 downto 0) );
     
     acc     : out std_logic_vector(DATA_WIDTH-1 downto 0)
    );

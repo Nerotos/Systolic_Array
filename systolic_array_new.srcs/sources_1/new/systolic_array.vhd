@@ -51,9 +51,22 @@ end systolic_array;
 
 architecture Behavioral of systolic_array is
 
+-- calculate upper index for node generation
+constant SYS_ARRAY_ROW_MAX_IDX : integer := SIZE_MATRIX_A(0)-1;
+constant SYS_ARRAY_COL_MAX_IDX : integer := SIZE_MATRIX_B(1)-1;
+
+
 begin
     -- Make sure that a valid matrix configuration is present
     assert (SIZE_MATRIX_A(1) = SIZE_MATRIX_A(0) )
         report "Columns of A == ROWS of B is not fulfilled" severity error;
+   
+    -- Generate Matrix of processing tiles
+    tile_row_gen: for i in 0 to SYS_ARRAY_ROW_MAX_IDX generate
+       tile_col_gen: for j in 0 to SYS_ARRAY_COL_MAX_IDX generate
+       
+       
+       end generate tile_col_gen;
+    end generate tile_row_gen;
 
 end Behavioral;

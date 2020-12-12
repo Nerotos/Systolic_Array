@@ -3,33 +3,34 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
 
-entity shift_multiplier_tb is
-end shift_multiplier_tb;
+entity mac_unit_tb is
+end mac_unit_tb;
 
 
-architecture behav of shift_multiplier_tb is
+architecture behav of mac_unit_tb is
 
-    component shift_multiplier is
-        generic(
-            NUM_SIGN_BITS : integer := 0;
-            DATA_WIDTH : integer := 32
-        );
+    component mac_unit is
+      generic(
+        NUM_ADDITIONS : integer := 5;
+        DATA_WIDTH : integer := 32;
+        --NUM_PIPELINE_STAGES: integer := 3; -- Configure number of pipeline stages
+        NUM_SIGN_BITS: integer := 0 -- Set to '1' to enable signed operations
+      );
+      port ( 
+        clk         : in std_logic;
+        rst         : in std_logic;
+        
+        x           : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        y           : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        enable      : in std_logic;
     
-        port(
-            clk         : in std_logic;
-            rst         : in std_logic;    
-    
-            x           : in std_logic_vector(DATA_WIDTH-1 downto 0);
-            y           : in std_logic_vector(DATA_WIDTH-1 downto 0);
-            enable       : in std_logic;
-    
-            z           : out std_logic_vector(2*DATA_WIDTH-1 downto 0);
-            valid       : out std_logic
-    
-        );
+        acc           : out std_logic_vector(2*DATA_WIDTH + NUM_ADDITIONS -1 downto 0);
+        valid       : out std_logic
+      );
     end component;
 
     constant TEST_WIDTH : integer := 10;
+    constant NUM_ADDITIONS : integer := 8;
     constant OUT_WIDTH : integer := 2*TEST_WIDTH;
 
     -- Input signals
@@ -41,7 +42,7 @@ architecture behav of shift_multiplier_tb is
     signal input_y  : std_logic_vector(TEST_WIDTH-1 downto 0);
 
     signal output_valid : std_logic;
-    signal output_z : std_logic_vector(OUT_WIDTH-1 downto 0);
+    signal output_z : std_logic_vector(OUT_WIDTH-1+NUM_ADDITIONS downto 0);
 
     signal cnt : integer := 0;
 
@@ -49,8 +50,6 @@ architecture behav of shift_multiplier_tb is
 
     type input_arr_type is array (natural range <>) of std_logic_vector(TEST_WIDTH-1 downto 0);
     type output_arr_type is array (natural range <>)of std_logic_vector(OUT_WIDTH-1 downto 0);
-
-    signal output_capture : output_arr_type (0 to 8);
 
     -- Define sequence of test inputs and expected outputs
     constant input_x_arr : input_arr_type (0 to 8) := ( std_logic_vector(to_signed(42,TEST_WIDTH)), --0
@@ -77,22 +76,15 @@ architecture behav of shift_multiplier_tb is
                                                         std_logic_vector(to_signed( 0, TEST_WIDTH)) --8
 	);
 
-    constant output_z_arr: output_arr_type(0 to 8) :=  (std_logic_vector(to_signed(294, OUT_WIDTH)), --0
-                                                        std_logic_vector(to_signed( -255, OUT_WIDTH)), 
-                                                        std_logic_vector(to_signed( 35, OUT_WIDTH)),
-                                                        std_logic_vector(to_signed( 875, OUT_WIDTH)),
-                                                        std_logic_vector(to_signed( 420, OUT_WIDTH)),
-                                                
-                                                        std_logic_vector(to_signed( 294, OUT_WIDTH)), --5
-                                                        std_logic_vector(to_signed( 210, OUT_WIDTH)),
-                                                        std_logic_vector(to_signed( 255, OUT_WIDTH)),
-                                                        std_logic_vector(to_signed( 0, OUT_WIDTH)) --8
-    );
+    constant output_z_arr : std_logic_vector(OUT_WIDTH-1+NUM_ADDITIONS downto 0) := std_logic_vector(to_signed(2383, OUT_WIDTH+NUM_ADDITIONS));
+
+    
     
 begin
-    uut: shift_multiplier
+    uut: mac_unit
     generic map(
         NUM_SIGN_BITS => 1,
+        NUM_ADDITIONS => 8,
         DATA_WIDTH => TEST_WIDTH
     )
     port map(
@@ -103,7 +95,7 @@ begin
         y       => input_y,
         enable   => enable,
 
-        z       => output_z,
+        acc       => output_z,
         valid   => output_valid
     );
 
@@ -125,8 +117,6 @@ begin
         wait for 100 ns;
         rst <= '0';
 
-        
-
         while cnt < (input_x_arr'length) loop
             input_x <= input_x_arr(cnt);
             input_y <= input_y_arr(cnt);
@@ -142,15 +132,7 @@ begin
         wait;
     end process;
 
-    -- Capture output
-    cap_out : process(output_z)
-    begin
-        if output_valid = '1' and cnt_capture <= output_capture'length-1 then
-            output_capture(cnt_capture) <= output_z;
-            cnt_capture <= cnt_capture+1;
-        end if;
 
-    end process;
 
 end behav;
 
