@@ -38,7 +38,9 @@ package systolic_array_lib is
     -- Type Declarations
     ------------------------------------
     type matrix_size_type is array(0 to 1) of integer range 0 to 1024;
-
+    
+    type memory_arbiter_out is array(0 to 3) of std_logic_vector(31 downto 0);
+     
     ------------------------------------
     -- Component Declarations
     ------------------------------------
@@ -83,6 +85,24 @@ package systolic_array_lib is
       );
     end component;
 
+    component shift_register_lut is
+      generic(
+        WIDTH : integer := 32;
+        DEPTH : integer := 8
+      );
+      Port (
+        clk         : in std_logic;
+        rst         : in std_logic;
+        
+        wr_en       : in std_logic;
+        data_in     : in std_logic_vector(WIDTH-1 downto 0);
+        rd_en       : in std_logic;
+        data_out    : out std_logic_vector(WIDTH-1 downto 0);
+        
+        full        : out std_logic;
+        empty       : out std_logic
+      );
+    end component;
     
 end package systolic_array_lib;
  

@@ -36,7 +36,7 @@ use work.systolic_array_lib.ALL;
 
 entity mac_unit is
   generic(
-    NUM_ADDITIOns : integer := 5;
+    NUM_ADDITIONS : integer := 5;
     DATA_WIDTH : integer := 32;
     --NUM_PIPELINE_STAGES: integer := 3; -- Configure number of pipeline stages
     NUM_SIGN_BITS: integer := 0 -- Set to '1' to enable signed operations
